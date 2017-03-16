@@ -11,9 +11,8 @@ class TestRental < Minitest::Test
   def test_statement_empty_rental
     customer = Customer.new(name: 'Ravi Wu')
     expected_statement =
-      "Rental Record for Ravi Wu\n" +
-      "Amount owed is 0\n" +
-      "You earned 0 frequent renter points."
+      header(customer.name) +
+      footer(total: 0, renter_point: 0)
 
     assert_equal(expected_statement, customer.statement)
   end
@@ -23,10 +22,9 @@ class TestRental < Minitest::Test
     customer.add_rental(Rental.new(movie: @movie_seven, days_rented: 2))
 
     expected_statement =
-      "Rental Record for Ravi Wu\n" +
-      "\tse7en\t2\n" +
-      "Amount owed is 2\n" +
-      "You earned 1 frequent renter points."
+      header(customer.name) +
+      line_item(@movie_seven.title => 2) +
+      footer(total: 2, renter_point: 1)
 
     assert_equal(expected_statement, customer.statement)
   end
@@ -37,10 +35,9 @@ class TestRental < Minitest::Test
     rental_cost = 2 + (5 - 2) * 1.5
 
     expected_statement =
-      "Rental Record for Ravi Wu\n" +
-      "\tse7en\t#{rental_cost}\n" +
-      "Amount owed is #{rental_cost}\n" +
-      "You earned 1 frequent renter points."
+      header(customer.name) +
+      line_item(@movie_seven.title => rental_cost) +
+      footer(total: rental_cost, renter_point: 1)
 
     assert_equal(expected_statement, customer.statement)
   end
@@ -51,10 +48,9 @@ class TestRental < Minitest::Test
 
     # additional frequent point for new release
     expected_statement =
-      "Rental Record for Ravi Wu\n" +
-      "\tPaul\t6\n" +
-      "Amount owed is 6\n" +
-      "You earned 2 frequent renter points."
+      header(customer.name) +
+      line_item(@movie_paul.title => 6) +
+      footer(total: 6, renter_point: 2)
 
     assert_equal(expected_statement, customer.statement)
   end
@@ -64,10 +60,9 @@ class TestRental < Minitest::Test
     customer.add_rental(Rental.new(movie: @movie_dory, days_rented: 2))
 
     expected_statement =
-      "Rental Record for Ravi Wu\n" +
-      "\tDory\t1.5\n" +
-      "Amount owed is 1.5\n" +
-      "You earned 1 frequent renter points."
+      header(customer.name) +
+      line_item(@movie_dory.title => 1.5) +
+      footer(total: 1.5, renter_point: 1)
 
     assert_equal(expected_statement, customer.statement)
   end
@@ -78,10 +73,9 @@ class TestRental < Minitest::Test
     rental_cost = 1.5 + (5 - 3) * 1.5
 
     expected_statement =
-      "Rental Record for Ravi Wu\n" +
-      "\tDory\t#{rental_cost}\n" +
-      "Amount owed is #{rental_cost}\n" +
-      "You earned 1 frequent renter points."
+      header(customer.name) +
+      line_item(@movie_dory.title => rental_cost) +
+      footer(total: rental_cost, renter_point: 1)
 
     assert_equal(expected_statement, customer.statement)
   end
@@ -92,11 +86,9 @@ class TestRental < Minitest::Test
     customer.add_rental(Rental.new(movie: @movie_seven, days_rented: 2))
 
     expected_statement =
-      "Rental Record for Ravi Wu\n" +
-      "\tDory\t1.5\n" +
-      "\tse7en\t2\n" +
-      "Amount owed is 3.5\n" +
-      "You earned 2 frequent renter points."
+      header(customer.name) +
+      line_item(@movie_dory.title => 1.5, @movie_seven.title => 2) +
+      footer(total: 3.5, renter_point: 2)
 
     assert_equal(expected_statement, customer.statement)
   end
@@ -104,9 +96,8 @@ class TestRental < Minitest::Test
   def test_html_statement_empty_rental
     customer = Customer.new(name: 'Ravi Wu')
     expected_statement =
-      "<h1>Rental Record for <em>Ravi Wu</em></h1><ul>\n" +
-      "</ul><p>Amount owed is <em>0</em></p>\n" +
-      "<p>You earned <em>0</em> frequent renter points.</p>"
+      html_header(customer.name) +
+      html_footer(total: 0, renter_point: 0)
 
     assert_equal(expected_statement, customer.html_statement)
   end
@@ -116,10 +107,9 @@ class TestRental < Minitest::Test
     customer.add_rental(Rental.new(movie: @movie_seven, days_rented: 2))
 
     expected_statement =
-      "<h1>Rental Record for <em>Ravi Wu</em></h1><ul>\n" +
-      "<li>se7en: <em>2</em></li>\n" +
-      "</ul><p>Amount owed is <em>2</em></p>\n" +
-      "<p>You earned <em>1</em> frequent renter points.</p>"
+      html_header(customer.name) +
+      html_line_item(@movie_seven.title => 2) +
+      html_footer(total: 2, renter_point: 1)
 
     assert_equal(expected_statement, customer.html_statement)
   end
@@ -130,10 +120,9 @@ class TestRental < Minitest::Test
     rental_cost = 2 + (5 - 2) * 1.5
 
     expected_statement =
-      "<h1>Rental Record for <em>Ravi Wu</em></h1><ul>\n" +
-      "<li>se7en: <em>#{rental_cost}</em></li>\n" +
-      "</ul><p>Amount owed is <em>#{rental_cost}</em></p>\n" +
-      "<p>You earned <em>1</em> frequent renter points.</p>"
+      html_header(customer.name) +
+      html_line_item(@movie_seven.title => rental_cost) +
+      html_footer(total: rental_cost, renter_point: 1)
 
     assert_equal(expected_statement, customer.html_statement)
   end
@@ -144,10 +133,9 @@ class TestRental < Minitest::Test
 
     # additional frequent point for new release
     expected_statement =
-      "<h1>Rental Record for <em>Ravi Wu</em></h1><ul>\n" +
-      "<li>Paul: <em>6</em></li>\n" +
-      "</ul><p>Amount owed is <em>6</em></p>\n" +
-      "<p>You earned <em>2</em> frequent renter points.</p>"
+      html_header(customer.name) +
+      html_line_item(@movie_paul.title => 6) +
+      html_footer(total: 6, renter_point: 2)
 
     assert_equal(expected_statement, customer.html_statement)
   end
@@ -157,10 +145,9 @@ class TestRental < Minitest::Test
     customer.add_rental(Rental.new(movie: @movie_dory, days_rented: 2))
 
     expected_statement =
-      "<h1>Rental Record for <em>Ravi Wu</em></h1><ul>\n" +
-      "<li>Dory: <em>1.5</em></li>\n" +
-      "</ul><p>Amount owed is <em>1.5</em></p>\n" +
-      "<p>You earned <em>1</em> frequent renter points.</p>"
+      html_header(customer.name) +
+      html_line_item(@movie_dory.title => 1.5) +
+      html_footer(total: 1.5, renter_point: 1)
 
     assert_equal(expected_statement, customer.html_statement)
   end
@@ -171,10 +158,9 @@ class TestRental < Minitest::Test
     rental_cost = 1.5 + (5 - 3) * 1.5
 
     expected_statement =
-      "<h1>Rental Record for <em>Ravi Wu</em></h1><ul>\n" +
-      "<li>Dory: <em>#{rental_cost}</em></li>\n" +
-      "</ul><p>Amount owed is <em>#{rental_cost}</em></p>\n" +
-      "<p>You earned <em>1</em> frequent renter points.</p>"
+      html_header(customer.name) +
+      html_line_item(@movie_dory.title => rental_cost) +
+      html_footer(total: rental_cost, renter_point: 1)
 
     assert_equal(expected_statement, customer.html_statement)
   end
@@ -185,12 +171,42 @@ class TestRental < Minitest::Test
     customer.add_rental(Rental.new(movie: @movie_seven, days_rented: 2))
 
     expected_statement =
-      "<h1>Rental Record for <em>Ravi Wu</em></h1><ul>\n" +
-      "<li>Dory: <em>1.5</em></li>\n" +
-      "<li>se7en: <em>2</em></li>\n" +
-      "</ul><p>Amount owed is <em>3.5</em></p>\n" +
-      "<p>You earned <em>2</em> frequent renter points.</p>"
+      html_header(customer.name) +
+      html_line_item(@movie_dory.title => 1.5, @movie_seven.title => 2) +
+      html_footer(total: 3.5, renter_point: 2)
 
     assert_equal(expected_statement, customer.html_statement)
+  end
+
+  private
+
+  def header(name)
+    "Rental Record for #{name}\n"
+  end
+
+  def html_header(name)
+    "<h1>Rental Record for <em>#{name}</em></h1><ul>\n"
+  end
+
+  def footer(total:, renter_point:)
+    "Amount owed is #{total}\n" +
+    "You earned #{renter_point} frequent renter points."
+  end
+
+  def html_footer(total:, renter_point:)
+    "</ul><p>Amount owed is <em>#{total}</em></p>\n" +
+    "<p>You earned <em>#{renter_point}</em> frequent renter points.</p>"
+  end
+
+  def line_item(rentals)
+    rentals.map do |title, amount|
+      "\t#{title}\t#{amount}\n"
+    end.join
+  end
+
+  def html_line_item(rentals)
+    rentals.map do |title, amount|
+      "<li>#{title}: <em>#{amount}</em></li>\n"
+    end.join
   end
 end
